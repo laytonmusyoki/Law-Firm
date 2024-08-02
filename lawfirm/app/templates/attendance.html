@@ -1,0 +1,106 @@
+{% extends 'base.html'  %}
+
+
+{% block content %}
+
+
+<style>
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px;
+        }
+        input[type="text"],
+        input[type="date"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            border: none;
+            border-radius: 3px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+    </style>
+    <div class="content-wrapper">
+    <div class="form-container">
+        <h2>Court Attendance Form</h2>
+        <form  method="post">
+            {% csrf_token %}
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required>
+
+            <label for="matterNumber">Matter number:</label>
+            <input type="text" id="matterNumber" name="matterNumber" value="{{client.matter_name}}" required>
+
+            <label for="parties">Matter Name::</label>
+            <input type="text" value="{{client.matter_name}}" name="matterName">
+
+            <label for="parties">Parties:</label>
+            <textarea id="parties" name="parties" rows="4"></textarea>
+
+            <label for="purpose">Purpose of court attendance:</label>
+            <textarea id="purpose" name="purpose" rows="3" required></textarea>
+
+            <label for="courtPresiding">Court Presiding:</label>
+            <textarea id="courtPresiding" name="courtPresiding" rows="3" required></textarea>
+
+            <label for="advocatesAttending">Advocates Attending:</label>
+            <textarea id="advocatesAttending" name="advocatesAttending" rows="3" required></textarea>
+
+            <label for="timeTaken">Time taken:</label>
+            <input type="text" id="timeTaken" name="timeTaken" required>
+
+            <label for="furtherAction">Further action by:</label>
+            <textarea id="furtherAction" name="furtherAction" rows="3" required></textarea>
+
+            <label for="signedBy">Signed by Advocate:</label>
+            <input type="text" id="signedBy" name="signedBy" required>
+
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('courtForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting the usual way
+
+            const formData = new FormData(this);
+            let data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            console.log(data); // For demonstration, we log the data to the console
+
+            alert("Form submitted successfully!");
+
+            // Here you can add code to send the form data to a server or handle it as needed
+        });
+    </script>
+    </div>
+
+
+    {% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'base.html'  %}
+
+
+{% block content %}
+
+
+<div class="content-wrapper">
+    <div class="row">
+        <a href="{% url 'newClient' %}" class="btn btn-primary">New Client</a>
+
+    </div>
+    <div class="row" style="margin-top: 10px;">
+        <div class="col-md-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <p class="card-title">Manage Clients</p>
+                    <br>
+                    {% for msg in messages %}
+                    <div class="alert alert-{{msg.level_tag}} alert-dismissible fade show  name" role="alert" style="margin-top: 20px;">
+                    <strong> {{msg.message}}</strong>
+                    <button type="button" class="btn-close name1" data-bs-dismiss="alert" aria-label="close"></button>
+                    </div>
+                    {% endfor %}
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="table-responsive">
+                                <table id="example" class="display expandable-table" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Client Name</th>
+                                            <th>Case No.</th>
+                                            <th>Matter No.</th>
+                                            <th>Attendance</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for client in data %}
+                                        <tr>
+                                            <th><a href="/clientInfo/{{client.id}}">{{client.first_name}}</a></th>
+                                            <th>{{client.name}}</th>
+                                            <th>{{client.matter_number}}</th>
+                                            <th><a href="/courtAttendances/{{client.id}}">Court Attendance</a></th>
+                                            <th>
+                                                {% if client.status == 'ongoing' %}
+                                                <span class="badge badge-success">Ongoing</span>
+                                                {% else %}
+                                                <span class="badge badge-danger">Closed</span>
+                                                {% endif %}
+                                            </th>
+                                            <th>
+                                                <a href="/updateClient/{{client.id}}" class="btn btn-primary">Update</a>
+                                                <a href="/deleteClient/{{client.id}}" onclick="return confirm('Are you sure you want to delete?')" class="btn btn-danger">Delete</a>
+                                            </th>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

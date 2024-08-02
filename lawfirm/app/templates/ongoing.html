@@ -1,0 +1,63 @@
+{% extends 'base.html'  %}
+
+
+{% block content %}
+
+
+<div class="content-wrapper">
+    <div class="row" style="margin-top: 10px;">
+        <div class="col-md-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <p class="card-title">Ongoing Cases</p>
+                    <div class="row">
+                        <div class="col-12">
+                            {% if data %}
+                            <div class="table-responsive">
+                                <table id="example" class="display expandable-table" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Client Name</th>
+                                            <th>Case No.</th>
+                                            <th>Matter No.</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for client in data %}
+                                        <tr>
+                                            <th><a href="/clientInfo/{{client.id}}">{{client.first_name}}</a></th>
+                                            <th>{{client.name}}</th>
+                                            <th>{{client.matter_number}}</th>
+                                            <th>
+                                                {% if client.status == 'ongoing' %}
+                                                <span class="badge badge-success">Ongoing</span>
+                                                {% else %}
+                                                <span class="badge badge-danger">Closed</span>
+                                                {% endif %}
+                                            </th>
+                                            <th>
+                                                <a href="/updateClient/{{client.id}}" class="btn btn-primary">Update</a>
+                                                <a href="/deleteClient/{{client.id}}" onclick="return confirm('Are you sure you want to delete?')" class="btn btn-danger">Delete</a>
+                                            </th>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info" role="alert">
+                                No closed cases
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
