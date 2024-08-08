@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="content-wrapper">
+
+<div class="row">
+    <div class="col-lg-6" style="height: 300px;">
+        <h3><strong>Total Paid Bills: <span style="float: right;color: green;">KSH {{TotalAmountPaid}}</span></strong></h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Client Name</th>
+                    <th>Billing</th>
+                </tr>
+            </thead>
+            {% for data in paid %}
+            <tr>
+                <td>{{data.first_name}} {{data.sir_name}}</td>
+                <td>{{data.billing}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="col-lg-6">
+        <h3><strong>Total Unpaid Bills: <span style="float: right;color: red;">KSH {{TotalAmountUnpaid}}</span></strong></h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Client Name</th>
+                    <th>Billing</th>
+                </tr>
+            </thead>
+            {% for data in unpaid %}
+            <tr>
+                <td>{{data.first_name}} {{data.sir_name}}</td>
+                <td>{{data.billing}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="col-lg-12">
+        <table class="table table-striped">
+            <h3><strong>Pro Bono Clients</strong></h3>
+            <thead>
+                <tr>
+                    <th>Client Name</th>
+                    <th>Billing</th>
+                </tr>
+            </thead>
+            {% for data in proBono %}
+            <tr>
+                <td>{{data.first_name}} {{data.sir_name}}</td>
+                <td>0</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+</div>
+{% endblock %}

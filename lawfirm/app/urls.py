@@ -17,4 +17,6 @@ urlpatterns = [
     path("activeClient/", activeClient, name="activeClient"),
     path("closedClient/", closedClient, name="closedClient"),
     path("courtAttendances/<int:pk>/", courtAttendances, name="courtAttendances"),
+    path("billing/", Billing, name="Billing"),
+    path('charts/',charts,name='charts')
 ]

@@ -51,6 +51,16 @@ class Clients(models.Model):
     civil_sub_option = models.CharField(max_length=50, blank=True, null=True, choices=CIVIL_CHOICES)
     other_services_sub_option = models.CharField(max_length=50, blank=True, null=True, choices=OTHER_SERVICES_CHOICES)
 
+
+    # Billing fields
+    billing = models.CharField(default=0.0,blank=True,null=True,max_length=100)
+    payment_status = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        choices=[('paid', 'Paid'), ('unpaid', 'Unpaid'), ('pro Bono', 'pro_Bono')]
+    )
+
     def clean(self):
         from django.core.exceptions import ValidationError
         if self.dispute == 'criminal' and not self.criminal_sub_option:

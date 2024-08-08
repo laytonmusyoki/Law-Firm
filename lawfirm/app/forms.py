@@ -9,7 +9,7 @@ class ClientForm(forms.ModelForm):
         model = Clients
         fields = ['first_name', 'sir_name', 'phone_number', 'email', 'county', 'country','status',
                   'matter_number', 'matter_name', 'document_upload', 'description', 'pleading_status',
-                  'statement', 'dispute', 'criminal_sub_option', 'civil_sub_option', 'other_services_sub_option']
+                  'statement', 'dispute', 'criminal_sub_option', 'civil_sub_option', 'other_services_sub_option','billing', 'payment_status']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'sir_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -28,6 +28,8 @@ class ClientForm(forms.ModelForm):
             'criminal_sub_option': forms.Select(attrs={'class': 'form-control'}),
             'civil_sub_option': forms.Select(attrs={'class': 'form-control'}),
             'other_services_sub_option': forms.Select(attrs={'class': 'form-control'}),
+            'billing': forms.TextInput(attrs={'class': 'form-control'}),
+            'payment_status': forms.Select(attrs={'class': 'form-control'}),
         }
 
     def clean(self):

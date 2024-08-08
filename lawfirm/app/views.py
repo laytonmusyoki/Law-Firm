@@ -2,12 +2,27 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import ClientForm, UserRegistration
 from django.contrib.auth import authenticate, login, logout
+from django.db.models import Sum
 from .models import *
 import random
 import datetime
 
 def home(request):
-    return render(request, "dashboard.html")
+    totalCases=Clients.objects.all().count()
+    activeCases=Clients.objects.filter(status='ongoing').count()
+    closedCases=Clients.objects.filter(status='case closed').count()
+    closedCasesPercentage=(closedCases/totalCases)*100
+    ongoingCasesPercentage=(activeCases/totalCases)*100
+    totalBillPaid=Clients.objects.all().aggregate(Sum('billing'))['billing__sum']
+    context={
+        "totalCases":totalCases,
+        "activeCases":activeCases,
+        "closedCases":closedCases,
+        "totalBillPaid":totalBillPaid,
+        "closedCasesPercentage":closedCasesPercentage,
+        "ongoingCasesPercentage":ongoingCasesPercentage
+    }
+    return render(request, "dashboard.html",context)
 
 def signin(request):
     if request.method == "POST":
@@ -132,6 +147,75 @@ def closedClient(request):
         "data": data,
     }
     return render(request, "closed.html",context)
+
+
+def Billing(request):
+    unpaid=Clients.objects.filter(payment_status='unpaid')[:5]
+    paid=Clients.objects.filter(payment_status='paid')[:5]
+    proBono=Clients.objects.filter(payment_status='pro Bono')[:5]
+    TotalAmountPaid=Clients.objects.filter(payment_status='paid').aggregate(Sum('billing'))['billing__sum']
+    TotalAmountUnpaid=Clients.objects.filter(payment_status='unpaid').aggregate(Sum('billing'))['billing__sum']
+
+    context={
+        "unpaid":unpaid,
+        "paid":paid,
+        "proBono":proBono,
+        "TotalAmountPaid":TotalAmountPaid,
+        "TotalAmountUnpaid":TotalAmountUnpaid
+    }
+    return render(request, "billing.html",context)
+
+
+
+
+
+def charts(request):
+    totalCases = Clients.objects.all().count()
+    activeCases = Clients.objects.filter(status='ongoing').count()
+    closedCases = Clients.objects.filter(status='case closed').count()
+
+    unpaid = Clients.objects.filter(payment_status='unpaid')[:5]
+    paid = Clients.objects.filter(payment_status='paid')[:5]
+    proBono = Clients.objects.filter(payment_status='pro Bono')[:5]
+    TotalAmountPaid = Clients.objects.filter(payment_status='paid').aggregate(Sum('billing'))['billing__sum'] or 0
+    TotalAmountUnpaid = Clients.objects.filter(payment_status='unpaid').aggregate(Sum('billing'))['billing__sum'] or 0
+
+    # Calculate percentages
+    if totalCases > 0:
+        activeCasesPercentage = (activeCases / totalCases) * 100
+        closedCasesPercentage = (closedCases / totalCases) * 100
+    else:
+        activeCasesPercentage = 0
+        closedCasesPercentage = 0
+
+    # Get dispute counts
+    criminal_disputes = Clients.objects.filter(dispute='criminal').count()
+    civil_disputes = Clients.objects.filter(dispute='civil').count()
+    other_disputes = Clients.objects.filter(dispute='other').count()
+
+    context = {
+        'totalCases': totalCases,
+        'activeCases': activeCases,
+        'closedCases': closedCases,
+        'activeCasesPercentage': activeCasesPercentage,
+        'closedCasesPercentage': closedCasesPercentage,
+        'unpaid': unpaid,
+        'paid': paid,
+        'proBono': proBono,
+        'TotalAmountPaid': TotalAmountPaid,
+        'TotalAmountUnpaid': TotalAmountUnpaid,
+        'criminal_disputes': criminal_disputes,
+        'civil_disputes': civil_disputes,
+        'other_disputes': other_disputes,
+    }
+    
+    return render(request, 'charts.html', context)
+
+
+
+
+
+
 
 
 def signout(request):

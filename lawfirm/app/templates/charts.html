@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="row">
+        <div class="col-md-12 grid-margin stretch-card">
+            <div class="card position-relative">
+                <div class="card-body">
+                    <div id="detailedReports" class="carousel slide detailed-report-carousel position-static pt-2" data-ride="carousel">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <div class="row">
+                                    <div class="col-md-12 col-xl-3 d-flex flex-column justify-content-start">
+                                        <div class="ml-xl-4 mt-3">
+                                            <p class="card-title">Detailed Reports</p>
+                                            <h1 class="text-primary">Total Cases: {{ totalCases }}</h1>
+                                            <h3 class="font-weight-500 mb-xl-4 text-primary">Case Distribution</h3>
+                                            <p class="mb-2 mb-xl-0">This report shows the distribution of active and closed cases in your system.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xl-9">
+                                        <div class="row">
+                                            <div class="col-md-6 border-right">
+                                                <div class="table-responsive mb-3 mb-md-0 mt-3">
+                                                    <table class="table table-bordered report-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Status</th>
+                                                                <th>Progress</th>
+                                                                <th>Count</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td class="text-muted">Active Cases</td>
+                                                                <td>
+                                                                    <div class="progress progress-md mx-4">
+                                                                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ activeCasesPercentage }}%;" aria-valuenow="{{ activeCasesPercentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                    </div>
+                                                                </td>
+                                                                <td><h5 class="font-weight-bold mb-0">{{ activeCases }}</h5></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="text-muted">Closed Cases</td>
+                                                                <td>
+                                                                    <div class="progress progress-md mx-4">
+                                                                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ closedCasesPercentage }}%;" aria-valuenow="{{ closedCasesPercentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                    </div>
+                                                                </td>
+                                                                <td><h5 class="font-weight-bold mb-0">{{ closedCases }}</h5></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mt-3">
+                                                <canvas id="case-chart"></canvas>
+                                                <div id="case-legend"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- New carousel item for billing chart -->
+                            <div class="carousel-item">
+                                <div class="row">
+                                    <div class="col-md-12 col-xl-3 d-flex flex-column justify-content-start">
+                                        <div class="ml-xl-4 mt-3">
+                                            <p class="card-title">Billing Overview</p>
+                                            <h3 class="font-weight-500 mb-xl-4 text-primary">Billing Summary</h3>
+                                            <p class="mb-2 mb-xl-0">This section displays the total amount paid and unpaid, along with the count of pro bono cases.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xl-9">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h5>Total Amount Paid</h5>
+                                                <h3 class="text-success">${{ TotalAmountPaid|default:"0" }}</h3>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h5>Total Amount Unpaid</h5>
+                                                <h3 class="text-danger">${{ TotalAmountUnpaid|default:"0" }}</h3>
+                                            </div>
+                                            <div class="col-md-12 mt-4">
+                                                <canvas id="billing-chart"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- New carousel item for disputes chart -->
+                            <div class="carousel-item">
+                                <div class="row">
+                                    <div class="col-md-12 col-xl-3 d-flex flex-column justify-content-start">
+                                        <div class="ml-xl-4 mt-3">
+                                            <p class="card-title">Dispute Types</p>
+                                            <h3 class="font-weight-500 mb-xl-4 text-primary">Dispute Summary</h3>
+                                            <p class="mb-2 mb-xl-0">This section displays the distribution of disputes by type.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xl-9">
+                                        <div class="col-md-12 mt-4">
+                                            <canvas id="dispute-chart" class="chart-size"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a class="carousel-control-prev" href="#detailedReports" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#detailedReports" role="button" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Chart.js setup for case distribution
+    var ctxCase = document.getElementById('case-chart').getContext('2d');
+    var caseChart = new Chart(ctxCase, {
+        type: 'pie',
+        data: {
+            labels: ['Active Cases', 'Closed Cases'],
+            datasets: [{
+                label: 'Cases Distribution',
+                data: [{{ activeCasesPercentage }}, {{ closedCasesPercentage }}],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.5)', // Light teal for Active Cases
+                    'rgba(153, 102, 255, 0.5)' // Light purple for Closed Cases
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',   // Teal for Active Cases
+                    'rgba(153, 102, 255, 1)'   // Purple for Closed Cases
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.label + ': ' + tooltipItem.raw.toFixed(2) + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Chart.js setup for billing chart
+    var ctxBilling = document.getElementById('billing-chart').getContext('2d');
+    var billingChart = new Chart(ctxBilling, {
+        type: 'bar',
+        data: {
+            labels: ['Paid Amount', 'Unpaid Amount', 'Pro Bono Cases'],
+            datasets: [{
+                label: 'Billing Summary',
+                data: [
+                    {{ TotalAmountPaid|default:"0" }},
+                    {{ TotalAmountUnpaid|default:"0" }},
+                    {{ proBono.count }}
+                ],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.5)', // Light teal for Paid Amount
+                    'rgba(255, 99, 132, 0.5)', // Light red for Unpaid Amount
+                    'rgba(255, 205, 86, 0.5)'  // Light yellow for Pro Bono Cases
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',   // Teal for Paid Amount
+                    'rgba(255, 99, 132, 1)',   // Red for Unpaid Amount
+                    'rgba(255, 205, 86, 1)'    // Yellow for Pro Bono Cases
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.label + ': ' + (tooltipItem.label === 'Pro Bono Cases' ? tooltipItem.raw.toFixed(0) : '$' + tooltipItem.raw.toFixed(2));
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Chart.js setup for dispute types
+    var ctxDispute = document.getElementById('dispute-chart').getContext('2d');
+    var disputeChart = new Chart(ctxDispute, {
+        type: 'polarArea',
+        data: {
+            labels: ['Criminal', 'Civil', 'Other Services'],
+            datasets: [{
+                label: 'Dispute Types',
+                data: [{{ criminal_disputes }}, {{ civil_disputes }}, {{ other_disputes }}],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)', // Light red for Criminal
+                    'rgba(54, 162, 235, 0.5)', // Light blue for Civil
+                    'rgba(75, 192, 192, 0.5)'  // Light teal for Other Services
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',   // Red for Criminal
+                    'rgba(54, 162, 235, 1)',   // Blue for Civil
+                    'rgba(75, 192, 192, 1)'    // Teal for Other Services
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                r: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.label + ': ' + tooltipItem.raw;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<style>
+    .chart-size {
+        width: 100% !important;
+        max-width: 600px; /* Adjusted size to match case chart */
+        height: auto;
+        margin: auto;
+    }
+</style>
+
+{% endblock %}
